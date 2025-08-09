@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'game_screen.dart';
 import 'main_menu_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  // Required for async main and for Firebase initialization
+  WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const VisualNovelApp());
 }
 

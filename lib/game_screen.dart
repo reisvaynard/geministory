@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -30,9 +31,17 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> _initializeGame() async {
-    // 1. Load story data from JSON
-    final jsonString = await rootBundle.loadString('assets/story.json');
-    _storyData = json.decode(jsonString) as Map<String, dynamic>;
+    // 1. Load story data from Firestore
+    final storySnapshot = await FirebaseFirestore.instance
+        .collection('story')
+        .get();
+
+    // Convert the snapshot into the Map format the game uses
+    final storyMap = <String, dynamic>{};
+    for (var doc in storySnapshot.docs) {
+      storyMap[doc.id] = doc.data();
+    }
+    _storyData = storyMap;
 
     // 2. Check arguments to see if we should load a saved game
     // This needs a 'mounted' check since it's in an async method.
@@ -213,9 +222,7 @@ class _GameScreenState extends State<GameScreen> {
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(8.0),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.8),
-                      ),
+                      border: Border.all(color: Colors.white.withOpacity(0.8)),
                     ),
                     child: SingleChildScrollView(
                       child: Text(
